@@ -12,139 +12,110 @@
 #   1) 주소록 정보 N개 --> 콜렉션
 #   2) 설정 정보 1개 -> 단일 변수
 
-
+from app_base import Application
+from models import AddressBook
 # 모델(Model) 객체
-import sys
+# Configuration 설정 정보 담당
+# AddressBookEntry
+# AddressBook
 
+# 객체 지향 설계 원칙
+# 1) SRP(Single Responsibility Principle): 단일 책임의 원칙
+# 2) OC(Open Close Principle): 확장에는 열려 있고, 변화에는 닫혀있음을 의미
+#                              기능에 대한 확장은 열려 있어야 한다. 하지만 변화에는 닫혀있어야 한다.
 
-class Configuration:
+# CLI --> GUI
+
+class AddressBookApp(Application):
     def __init__(self):
-        # csv 파일 경로명, encoding, ... --> 설정 파일을 분석해서 초기화...
-        config = self.load()
-        self.fname = config['FNAME']
-        self.encoding = config['ENCODING']
-
-    def load(self):
-        config = {}
-        with open('config.ini', 'rt') as f:
-            entries = f.readlines()
-            for entry in entries:
-                key, value = entry.split('=')
-                config[key.strip()] = value.strip()
-        return config
-
-    def __str__(self):
-        return f'<Configration fname: {self.fname}, encoding: {self.encoding}'
-
-
-class AddressBookEntry:
-    def __init__(self, name, phone, email, addr):
-        self.name = name
-        self.phone = phone
-        self.email = email
-        self.addr = addr
-
-    def __str__(self):
-        return f'<AddressBookEntry {self.name}, {self.phone}, {self.email}, {self.addr}>'
-
-    def __repr__(self):
-        return f'<AddressBookEntry {self.name}>'
-
-# 단위 테스트(unit test)
-
-# config = Configuration()
-# print(config)
-
-# entry = AddressBookEntry('홍길동', '010-1111-1111', 'hong@naver.com', '서울')
-# print(entry)
-# print([entry])
-
-
-class AddressBook:
-    def __init__(self):
-        self.book = []
-
-    def load(self, config):
-        with open(config.fname, 'rt', encoding=config.encoding) as f:
-            lines = f.readlines()[1:]
-            for line in lines:
-                name, phone, email, addr = line.split(',')
-                # AddressBookEntry를 생성하여 self.book에 추가
-                entry = AddressBookEntry(name, phone, email, addr)
-                addr = addr.strip()
-                self.book.append(entry)
-        # 정렬
-        self.book.sort(key=lambda a: a.name)  # <----a=entry = AddressBookEntry
-
-    def add(self, name, phone, email, addr):
-        pass
-
-    def delete(self, name):
-        pass
-
-    def update(self, name, phone, email, addr):
-        pass
-
-    def __str__(self):
-        return f'<AddressBook {self.book}>'
-
-
-class Application:
-    def __init__(self):
-        self.config = Configuration()
+        super().__init__()
         self.addressbook = AddressBook()
         self.addressbook.load(self.config)
 
-    def select_menu(self):
-        print('1)목록, 2)상세보기, 3)추가, 4)수정, 5)삭제, 6)종료')
-        menu = int(input('입력 : '))
-        return menu
+    def create_menu(self, menu):
+        # 메뉴를 구성해야 합니다.
+        # 밑에 self.print_book() 괄호 하면 리턴값을 넣겠다는거 실수많이함
+        menu.add('목록', self.print_book)
+        menu.add('상세보기', self.print_detail)
+        menu.add('검색', self.search)
+        menu.add('추가', self.add)
+        menu.add('수정', self.update)
+        menu.add('삭제', self.delete)
+        self.menu.add('종료', self.exit)  # self.menu랑 menu 같다.
 
-    def run(self, menu):
-        if menu == 1:     # 목록
-            self.print_book()
-        elif menu == 2:   # 상세보기
-            self.print_detail()
-        elif menu == 3:   # 추가
-            self.add()
-        elif menu == 4:   # 수정
-            self.update()
-        elif menu == 5:   # 삭제
-            self.delete()
-        elif menu == 6:   # 종료
-            self.exit()
-        else:
-            print('잘못 선택했습니다.')
+    # 검색방법: 키워드 검색...'길동'-->[홍길동,고길동]
+
+    def search(self):
+        keyword = input('검색어: ')
+        result = self.addressbook.search(keyword)
+        # result 출력
+        print('='*50)
+        print(f'검색결과 ({len(result)}건)')
+        print('='*50)
+        for index, entry in enumerate(result, 1):
+            print(
+                f'{index:02d}]{entry.name}: {entry.phone}, {entry.email}, {entry.addr}')
+        print('-'*50)
 
     def print_book(self):
         print('='*50)
         print('주소록')
         print('='*50)
         for index, entry in enumerate(self.addressbook.book, 1):
-            print(f'{index:02d}]{entry.name}: {entry.phone}, {entry.email}, {entry.addr}')
+            print(
+                f'{index:02d}]{entry.name}: {entry.phone}, {entry.email}, {entry.addr}')
         print('-'*50)
 
     def print_detail(self):
-        pass
+        index = int(input('선택(번호): '))
+        entry = self.addressbook.book[index-1]
+        # entry 포멧팅 해서 출력
+        print(f'이름: {entry.name}')
+        print(f'전화번호: {entry.phone}')
+        print(f'email: {entry.email}')
+        print(f'주소: {entry.addr}')
 
     def add(self):
-        pass
+        print('새 주소록 항목 추가')
+        name = input('이름: ')
+        phone = input('전화번호: ')
+        email = input('email: ')
+        addr = input('주소: ')
+        self.addressbook.add(name, phone, email, addr)
 
     def update(self):
-        pass
+        index = int(input('대상 선택(번호): '))
+        entry = self.addressbook.book[index-1]
+        print('주소록 항목 수정')
+        name = input(f'이름({entry.name}):')
+        if name.strip() == '':
+            name = entry.name
+        phone = input(f'전화번호({entry.phone}):')
+        if phone.strip() == '':
+            phone = entry.phone
+        email = input(f'email({entry.email}):')
+        if email.strip() == '':
+            email = entry.email
+        addr = input(f'주소({entry.addr}):')
+        if addr.strip() == '':
+            addr = entry.addr
+
+        self.addressbook.update(index-1, name, phone, email, addr)
 
     def delete(self):
-        pass
+        index = int(input('대상 선택(번호): '))
+        entry = self.addressbook.book[index-1]
+        ans = input(f'{entry.name}을 삭제할까요? (Y/N)')
+        if ans == 'y' or 'Y':
+            self.addressbook.delete(index-1)
 
-    def exit(self):
-        sys.exit(0)
+    def destroyed(self):
+        self.addressbook.save(self.config)
 
 
 def main():
-    app = Application()
-    while True:
-        menu = app.select_menu()
-        app.run(menu)
+    app = AddressBookApp()
+    app.run()
 
 
 main()
@@ -152,3 +123,14 @@ main()
 
 # 기존 방법: 절차 중심 --> Topdown
 # OOP: 객체 지향 방법 --> Bottom up  작은부품부터 시작해서 조립해나가는 방식
+
+# 주소록
+# Application
+#      Configuration
+#      Menu
+#          MenuItem
+#      AddressBook
+#          AddressBookEntry
+
+# 일기장
+#
