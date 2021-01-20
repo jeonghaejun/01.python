@@ -1,5 +1,7 @@
 # DAO: Data Access Object
 import math
+
+import MySQLdb
 from models import AddressBookEntry
 
 
@@ -44,15 +46,16 @@ class AddressBookDao:
             return None
 
     def search(self, keyword):
-        keyword=keyword.lower()
+        keyword = keyword.lower()
         query = f"select * from addressbook where lower(name) like '%{keyword}%'"
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
         return (AddressBookEntry(*row) for row in rows)
 
-    def add(self):
-        pass
-
+    def add(self, name, phone, email, addr):
+        
+        query = f"insert into addressbook (name,phone,email,addr) values ('{name}'','{phone}'','{email}'','{addr}'')"
+        
     def update(self):
         pass
 

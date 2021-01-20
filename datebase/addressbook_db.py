@@ -60,7 +60,12 @@ class AddrBookApp(Application):
         print('-'*60)
 
     def add(self):
-        pass
+        print('새 주소록 항목 추가')
+        name = input('이름: ')
+        phone = input('전화번호: ')
+        email = input('email: ')
+        addr = input('주소: ')
+        self.addrbook_dao.add(name, phone, email, addr)
 
     def update(self):
         pass
