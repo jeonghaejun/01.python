@@ -1,7 +1,6 @@
 # DAO: Data Access Object
 import math
 
-import MySQLdb
 from models import AddressBookEntry
 
 
@@ -53,9 +52,8 @@ class AddressBookDao:
         return (AddressBookEntry(*row) for row in rows)
 
     def add(self, name, phone, email, addr):
-        
         query = f"insert into addressbook (name,phone,email,addr) values ('{name}'','{phone}'','{email}'','{addr}'')"
-        
+        self.cursor.execute(query)
     def update(self):
         pass
 
