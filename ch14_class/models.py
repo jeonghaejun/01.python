@@ -1,3 +1,6 @@
+from app_base import Configuration
+
+
 class AddressBookEntry:
     def __init__(self, name, phone, email, addr):
         self.name = name

@@ -66,12 +66,37 @@ class AddrBookApp(Application):
         email = input('email: ')
         addr = input('주소: ')
         self.addrbook_dao.add(name, phone, email, addr)
+        self.db.commit()
+        print('추가완료')
 
     def update(self):
-        pass
+        num = int(input('대상 선택(번호): '))
+        row = self.addrbook_dao.get(num)
+        if not row:
+            print(f'{num}은 없습니다.')
+            return
+        print('주소록 항목 수정')
+        name = input(f'이름({row.name}):')
+        if name.strip() == '':
+            name = row.name
+        phone = input(f'전화번호({row.phone}):')
+        if phone.strip() == '':
+            phone = row.phone
+        email = input(f'email({row.email}):')
+        if email.strip() == '':
+            email = row.email
+        addr = input(f'주소({row.addr}):')
+        if addr.strip() == '':
+            addr = row.addr
+        self.addrbook_dao.update(num,name, phone, email, addr)
+        self.db.commit()
+        print('수정완료')
 
     def delete(self):
-        pass
+        name = input('이름: ')
+        self.addrbook_dao.delete(name)
+        self.db.commit()
+        print('삭제완료')
 
     def destroyed(self):
         self.cursor.close()

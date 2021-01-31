@@ -1,6 +1,5 @@
 # DAO: Data Access Object
 import math
-
 from models import AddressBookEntry
 
 
@@ -52,10 +51,16 @@ class AddressBookDao:
         return (AddressBookEntry(*row) for row in rows)
 
     def add(self, name, phone, email, addr):
-        query = f"insert into addressbook (name,phone,email,addr) values ('{name}'','{phone}'','{email}'','{addr}'')"
-        self.cursor.execute(query)
-    def update(self):
-        pass
+        query = f"insert into addressbook (name,phone,email,addr) values ('{name}','{phone}','{email}','{addr}')"
+        return self.cursor.execute(query)
+        
 
-    def delete(self):
-        pass
+
+        
+    def update(self,num,name,phone,email,addr):
+        query = f"UPDATE addressbook SET name='{name}', phone ='{phone}', email='{email}', addr='{addr}' WHERE num = '{num}'"
+        return self.cursor.execute(query)
+
+    def delete(self,name):
+        query = f"DELETE FROM addressbook WHERE name = '{name}'"
+        return self.cursor.execute(query)
